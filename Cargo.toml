@@ -1,0 +1,22 @@
+[package]
+name = "rs-messenger"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2.134"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+futures = { version = "0.3.*" }
+tokio = {version = "0.2.*", features = ["full"] }
+spmc = "0.3.0"
+uuid = {version = "1.2.1", features = ["v4"] }
+dotenv = "0.15.0"
+dirs = "1.0"
+colored = "2.0.0"
+chrono = "0.4.22"
+
+[build-dependencies]
+cmake = "0.1"
