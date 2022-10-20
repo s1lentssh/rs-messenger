@@ -1,5 +1,8 @@
 mod telegram;
 
+#[macro_use]
+extern crate dotenv_codegen;
+
 use chrono::prelude::DateTime;
 use chrono::Local;
 use colored::Colorize;
@@ -35,7 +38,7 @@ impl PrettyPrint for UserStatus {
             UserStatus::UserStatusLastMonth => "(month) ".to_owned(),
             UserStatus::UserStatusLastWeek => "(week) ".to_owned(),
             UserStatus::UserStatusOnline => "(online) ".to_owned(),
-            UserStatus::UserStatusRecently => "(recently) ".to_owned()
+            UserStatus::UserStatusRecently => "(recently) ".to_owned(),
         }
     }
 }
@@ -49,7 +52,11 @@ async fn main() {
         .authorize(
             &format!(
                 "{}/.config/rust-messenger",
-                dirs::home_dir().unwrap().into_os_string().to_str().unwrap()
+                dirs::home_dir()
+                    .expect("Can't get home directory")
+                    .into_os_string()
+                    .to_str()
+                    .expect("Can't convert home directory to string")
             ),
             "Terminal",
         )
@@ -102,8 +109,11 @@ async fn main() {
         let user = if let MessageSender::MessageSenderUser(id) = &chat.last_message.sender_id {
             match chat.chat_type {
                 ChatType::ChatTypeBasicGroup | ChatType::ChatTypeSupergroup => {
-                    let user = users.iter().find(|user| user.id == id.user_id).unwrap();
-                    format!("{} ", format!("{} {}", user.first_name, user.last_name).trim())
+                    let user = users.iter().find(|user| user.id == id.user_id).expect("Can't find user info");
+                    format!(
+                        "{} ",
+                        format!("{} {}", user.first_name, user.last_name).trim()
+                    )
                 }
 
                 _ => "".to_string(),
@@ -116,7 +126,7 @@ async fn main() {
         {
             match chat.chat_type {
                 ChatType::ChatTypePrivate => {
-                    let user = users.iter().find(|user| user.id == id.user_id).unwrap();
+                    let user = users.iter().find(|user| user.id == id.user_id).expect("Can't find user info");
                     user.status.pretty_format()
                 }
 
@@ -140,9 +150,11 @@ async fn main() {
             it @ _ => format!("{:?}", it).underline().to_string(),
         };
 
-        let epoch = UNIX_EPOCH + Duration::from_secs(chat.last_message.date.try_into().unwrap());
+        let epoch = UNIX_EPOCH + Duration::from_secs(chat.last_message.date.try_into().expect("Can't convert unixtime to Duration"));
         let datetime = DateTime::<Local>::from(epoch).pretty_format();
 
         println!("{}{}\n", datetime.bold().bright_black(), body);
     }
+
+    loop {}
 }

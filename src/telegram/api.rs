@@ -37,16 +37,13 @@ pub struct UpdateOption {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(tag = "@type")]
+#[serde(tag = "@type", rename_all = "camelCase")]
 pub enum AuthorizationStateType {
-    #[serde(rename = "authorizationStateWaitTdlibParameters")]
-    WithTdLibParameters,
-    #[serde(rename = "authorizationStateWaitPhoneNumber")]
-    WaitPhoneNumber,
-    #[serde(rename = "authorizationStateWaitCode")]
-    WaitCode,
-    #[serde(rename = "authorizationStateReady")]
-    Ready,
+    AuthorizationStateWaitTdlibParameters,
+    AuthorizationStateWaitPhoneNumber,
+    AuthorizationStateWaitCode,
+    AuthorizationStateReady,
+    AuthorizationStateClosing
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -252,71 +249,141 @@ pub struct TdlibParameters {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct TgExtra {
+pub struct TgEvent {
     #[serde(rename = "@extra")] pub extra: Option<String>,
-    #[serde(flatten)] pub data: Tg
+    #[serde(flatten)] pub data: TgEventData,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "@type", rename_all = "camelCase")]
-pub enum Tg {
+pub enum TgEventData {
+    // Util
     Error(Error),
-    UpdateOption(UpdateOption),
-    UpdateAuthorizationState(UpdateAuthorizationState),
-    SetTdlibParameters(TdlibParameters),
-    UpdateAnimationSearchParameters,
     Ok,
-    UpdateSelectedBackground,
-    UpdateFileDownloads,
-    UpdateConnectionState,
-    GetAuthorizationState,
+
+    // Auth
     AuthorizationStateWaitTdlibParameters,
     AuthorizationStateWaitPhoneNumber,
-    SetAuthenticationPhoneNumber(SetAuthenticationPhoneNumber),
     AuthorizationStateWaitCode,
+    AuthorizationStateReady,
+
+    // Data
+    Chats(Chats),
+    Chat(Chat),
+    User(User),
+
+    // Requests
     CheckAuthenticationCode(CheckAuthenticationCode),
+
+    // Setters
+    SetAuthenticationPhoneNumber(SetAuthenticationPhoneNumber),
+    SetTdlibParameters(TdlibParameters),
+
+    // Getters
+    GetAllChats,
+    GetAuthorizationState,
+    GetChats(GetChats),
+    GetChat(GetChat),
+    GetUser(GetUser),
+    LoadChats(LoadChats),
+
+    // Updates
+    UpdateActiveNotifications, 
+    UpdateAnimatedEmojiMessageClicked, 
+    UpdateAnimationSearchParameters, 
+    UpdateAuthorizationState(UpdateAuthorizationState), 
+    UpdateBasicGroup, 
+    UpdateBasicGroupFullInfo, 
+    UpdateCall, 
+    UpdateChatAction, 
+    UpdateChatActionBar, 
+    UpdateChatDefaultDisableNotification, 
+    UpdateChatDraftMessage, 
+    UpdateChatFilters, 
+    UpdateChatHasProtectedContent, 
+    UpdateChatHasScheduledMessages, 
+    UpdateChatIsBlocked, 
+    UpdateChatIsMarkedAsUnread, 
+    UpdateChatLastMessage, 
+    UpdateChatMember, 
+    UpdateChatMessageSender, 
+    UpdateChatMessageTtl, 
+    UpdateChatNotificationSettings, 
+    UpdateChatOnlineMemberCount, 
+    UpdateChatPendingJoinRequests, 
+    UpdateChatPermissions, 
+    UpdateChatPhoto, 
+    UpdateChatPosition, 
+    UpdateChatReadInbox, 
+    UpdateChatReadOutbox, 
+    UpdateChatReplyMarkup, 
+    UpdateChatTheme, 
+    UpdateChatThemes, 
+    UpdateChatTitle, 
+    UpdateChatUnreadMentionCount, 
+    UpdateChatVideoChat, 
+    UpdateConnectionState, 
+    UpdateDeleteMessages, 
+    UpdateDiceEmojis, 
+    UpdateFavoriteStickers, 
+    UpdateFile, 
+    UpdateFileGenerationStart, 
+    UpdateFileGenerationStop, 
+    UpdateGroupCall, 
+    UpdateGroupCallParticipant, 
+    UpdateHavePendingNotifications, 
+    UpdateInstalledStickerSets, 
+    UpdateLanguagePackStrings, 
+    UpdateMessageContent, 
+    UpdateMessageContentOpened, 
+    UpdateMessageEdited, 
+    UpdateMessageInteractionInfo, 
+    UpdateMessageIsPinned, 
+    UpdateMessageLiveLocationViewed, 
+    UpdateMessageMentionRead, 
+    UpdateMessageSendAcknowledged, 
+    UpdateMessageSendFailed, 
+    UpdateMessageSendSucceeded, 
+    UpdateNewCallbackQuery, 
+    UpdateNewCallSignalingData, 
+    UpdateNewChat, 
+    UpdateNewChatJoinRequest, 
+    UpdateNewChosenInlineResult, 
+    UpdateNewCustomEvent, 
+    UpdateNewCustomQuery, 
+    UpdateNewInlineCallbackQuery, 
+    UpdateNewInlineQuery, 
+    UpdateNewMessage, 
+    UpdateNewPreCheckoutQuery, 
+    UpdateNewShippingQuery, 
+    UpdateNotification, 
+    UpdateNotificationGroup, 
+    UpdateOption(UpdateOption), 
+    UpdatePoll, 
+    UpdatePollAnswer, 
+    UpdateRecentStickers, 
+    UpdateSavedAnimations, 
+    UpdateScopeNotificationSettings, 
+    UpdateSecretChat, 
+    UpdateSelectedBackground, 
+    UpdateServiceNotification, 
+    UpdateStickerSet, 
+    UpdateSuggestedActions, 
+    UpdateSupergroup, 
+    UpdateSupergroupFullInfo, 
+    UpdateTermsOfService, 
+    UpdateTrendingStickerSets, 
+    UpdateUnreadChatCount, 
+    UpdateUnreadMessageCount, 
     UpdateUser(UpdateUser),
+    UpdateUserFullInfo, 
+    UpdateUserPrivacySettingRules, 
+    UpdateUsersNearby, 
+    UpdateUserStatus(UpdateUserStatus),
     UpdateDefaultReactionType,
     UpdateAttachmentMenuBots,
-    UpdateDiceEmojis,
+    UpdateFileDownloads,
     UpdateActiveEmojiReactions,
-    UpdateChatThemes,
-    UpdateScopeNotificationSettings,
-    UpdateChatFilters,
-    UpdateUnreadMessageCount,
-    UpdateUnreadChatCount,
-    UpdateHavePendingNotifications,
-    UpdateUserStatus(UpdateUserStatus),
-    UpdateSupergroup,
-    UpdateNewChat,
-    UpdateChatLastMessage,
-    UpdateSupergroupFullInfo,
-    UpdateNewMessage,
-    GetChats(GetChats),
-    LoadChats(LoadChats),
-    GetAllChats,
-    UpdateBasicGroup,
-    UpdateChatPosition,
-    Chats(Chats),
-    UpdateUserFullInfo,
-    UpdateChatActionBar,
     UpdateChatAvailableReactions,
-    GetChat(GetChat),
-    Chat(Chat),
-    UpdateChatReadInbox,
-    GetUser(GetUser),
-    User(User),
-    UpdateChatReadOutbox,
-    UpdateGroupCall,
-    UpdateMessageInteractionInfo,
-    UpdateMessageContent,
-    UpdateMessageEdited,
-    UpdateBasicGroupFullInfo,
-    UpdateChatVideoChat,
-    UpdateDeleteMessages,
-    AuthorizationStateReady,
-    UpdateChatNotificationSettings,
-    UpdateChatUnreadReactionCount,
-    UpdateChatMessageTtl,
-    UpdateChatAction
+    UpdateChatUnreadReactionCount
 }
